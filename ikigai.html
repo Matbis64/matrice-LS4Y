@@ -1,0 +1,283 @@
+!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant Interactif Ikigai - LS4YOU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .wizard-step {
+            display: none;
+        }
+        .wizard-step.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tag {
+            transition: background-color 0.3s;
+        }
+        .tag-remove:hover {
+            transform: scale(1.2);
+        }
+        /* Final Ikigai Diagram Styles */
+        .ikigai-result-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 1 / 1;
+            margin: 20px auto;
+        }
+        .result-circle {
+            position: absolute;
+            border-radius: 50%;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .result-circle .content {
+            text-align: center;
+            color: #333;
+        }
+        .result-circle h4 {
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        .result-circle ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.8rem;
+        }
+        #rc1 { background-color: #99F6E4; width: 60%; height: 60%; top: 0; left: 0; }
+        #rc2 { background-color: #FEF08A; width: 60%; height: 60%; top: 0; right: 0; }
+        #rc3 { background-color: #FECACA; width: 60%; height: 60%; bottom: 0; left: 0; }
+        #rc4 { background-color: #A7F3D0; width: 60%; height: 60%; bottom: 0; right: 0; }
+        .center-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 700; font-size: 2rem;
+            color: #F87171; z-index: 5;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div class="container max-w-2xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="header bg-gradient-to-r from-red-500 to-yellow-400 text-white p-6 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold">Construis ton Ikigai</h1>
+            <p class="mt-2 text-sm md:text-base opacity-90">Un pas à la fois, découvrons ce qui te fait vibrer.</p>
+        </div>
+
+        <div class="p-8">
+            <!-- Step 1: Ce que j'aime -->
+            <div id="step-1" class="wizard-step active">
+                <h2 class="text-2xl font-bold text-center text-turquoise-500 mb-2" style="color: #0D9488;">Étape 1: Ce que j'aime ❤️‍🩹</h2>
+                <p class="text-center text-gray-600 mb-6">Qu'est-ce qui te passionne ? Qu'aimais-tu faire enfant ? Liste tout ce qui te vient à l'esprit.</p>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="input-aime" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: Dessiner, les jeux vidéo, la nature...">
+                    <button onclick="addItem('aime')" class="bg-turquoise-500 text-white px-4 rounded-md" style="background-color: #2DD4BF;">Ajouter</button>
+                </div>
+                <div id="list-aime" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Step 2: Ce qui me rend fort -->
+            <div id="step-2" class="wizard-step">
+                <h2 class="text-2xl font-bold text-center text-yellow-500 mb-2" style="color: #FBBF24;">Étape 2: Tes points forts 💪</h2>
+                <p class="text-center text-gray-600 mb-6">Dans quoi es-tu doué(e) ? Qu'est-ce que les autres disent de toi ? Quelles sont tes compétences ?</p>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="input-fort" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: Écouter les autres, résoudre des problèmes...">
+                    <button onclick="addItem('fort')" class="bg-yellow-500 text-white px-4 rounded-md" style="background-color: #FBBF24;">Ajouter</button>
+                </div>
+                <div id="list-fort" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Step 3: Ce pour quoi je peux être payé -->
+            <div id="step-3" class="wizard-step">
+                <h2 class="text-2xl font-bold text-center text-red-500 mb-2" style="color: #F87171;">Étape 3: Tes compétences utiles 💰</h2>
+                <p class="text-center text-gray-600 mb-6">Pour quelles compétences quelqu'un serait-il prêt à te payer ? Quels sont les besoins du marché du travail ?</p>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="input-paye" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: Créer des sites web, organiser des événements...">
+                    <button onclick="addItem('paye')" class="bg-red-500 text-white px-4 rounded-md" style="background-color: #F87171;">Ajouter</button>
+                </div>
+                <div id="list-paye" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Step 4: Ce dont le monde a besoin -->
+            <div id="step-4" class="wizard-step">
+                <h2 class="text-2xl font-bold text-center text-green-500 mb-2" style="color: #34D399;">Étape 4: Ta contribution au monde 🌍</h2>
+                <p class="text-center text-gray-600 mb-6">Quelle cause te tient à cœur ? Quel problème aimerais-tu aider à résoudre ?</p>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="input-monde" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Ex: Aider les personnes âgées, protéger l'environnement...">
+                    <button onclick="addItem('monde')" class="bg-green-500 text-white px-4 rounded-md" style="background-color: #34D399;">Ajouter</button>
+                </div>
+                <div id="list-monde" class="flex flex-wrap gap-2"></div>
+            </div>
+            
+            <!-- Step 5: Result -->
+            <div id="step-5" class="wizard-step">
+                <h2 class="text-2xl font-bold text-center text-red-500 mb-4">Voici ton Ikigai ! ✨</h2>
+                <p class="text-center text-gray-600 mb-6">Ceci est une représentation de tes passions, tes talents et tes opportunités. Utilise-le comme une boussole pour guider tes prochains pas.</p>
+                <div id="ikigai-capture">
+                    <div class="ikigai-result-container">
+                        <div id="rc1" class="result-circle"><div id="result-aime" class="content"></div></div>
+                        <div id="rc2" class="result-circle"><div id="result-fort" class="content"></div></div>
+                        <div id="rc3" class="result-circle"><div id="result-paye" class="content"></div></div>
+                        <div id="rc4" class="result-circle"><div id="result-monde" class="content"></div></div>
+                        <div class="center-text">IKIGAI</div>
+                    </div>
+                </div>
+                 <div class="mt-6 text-center">
+                    <button id="download-btn" class="bg-turquoise-500 hover:bg-turquoise-600 text-white font-bold py-2 px-4 rounded-lg transition-colors" style="background-color: #2DD4BF;">
+                        Télécharger mon Ikigai
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between mt-8">
+                <button id="prev-btn" onclick="navigate(-1)" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors" style="visibility: hidden;">Précédent</button>
+                <button id="next-btn" onclick="navigate(1)" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg transition-colors">Suivant</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let currentStep = 1;
+    const totalSteps = 5;
+    const data = {
+        aime: [],
+        fort: [],
+        paye: [],
+        monde: []
+    };
+
+    const inputs = {
+        aime: document.getElementById('input-aime'),
+        fort: document.getElementById('input-fort'),
+        paye: document.getElementById('input-paye'),
+        monde: document.getElementById('input-monde')
+    };
+
+    Object.values(inputs).forEach(input => {
+        input.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const type = event.target.id.split('-')[1];
+                addItem(type);
+            }
+        });
+    });
+
+    function navigate(direction) {
+        const newStep = currentStep + direction;
+        if (newStep > 0 && newStep <= totalSteps) {
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            currentStep = newStep;
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            updateNavButtons();
+        }
+        if (currentStep === totalSteps) {
+            generateIkigai();
+        }
+    }
+
+    function updateNavButtons() {
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        
+        prevBtn.style.visibility = currentStep > 1 ? 'visible' : 'hidden';
+        
+        if (currentStep === totalSteps) {
+            nextBtn.style.visibility = 'hidden';
+        } else if (currentStep === totalSteps - 1) {
+            nextBtn.textContent = 'Voir mon Ikigai !';
+            nextBtn.style.visibility = 'visible';
+        } else {
+            nextBtn.textContent = 'Suivant';
+            nextBtn.style.visibility = 'visible';
+        }
+    }
+
+    function addItem(type) {
+        const input = document.getElementById(`input-${type}`);
+        const value = input.value.trim();
+        if (value && !data[type].includes(value)) {
+            data[type].push(value);
+            renderList(type);
+            input.value = '';
+            input.focus();
+        }
+    }
+
+    function removeItem(type, index) {
+        data[type].splice(index, 1);
+        renderList(type);
+    }
+
+    function renderList(type) {
+        const listContainer = document.getElementById(`list-${type}`);
+        listContainer.innerHTML = '';
+        const colors = {
+            aime: 'bg-turquoise-200 text-turquoise-800',
+            fort: 'bg-yellow-200 text-yellow-800',
+            paye: 'bg-red-200 text-red-800',
+            monde: 'bg-green-200 text-green-800'
+        };
+        data[type].forEach((item, index) => {
+            const tag = document.createElement('div');
+            tag.className = `tag ${colors[type]} px-3 py-1 rounded-full flex items-center gap-2`;
+            tag.innerHTML = `
+                <span>${item}</span>
+                <span class="tag-remove font-bold cursor-pointer transition-transform" onclick="removeItem('${type}', ${index})">&times;</span>
+            `;
+            listContainer.appendChild(tag);
+        });
+    }
+
+    function generateIkigai() {
+        const titles = {
+            aime: "❤️‍🩹 Ce que j'aime",
+            fort: "💪 Ce qui me rend fort",
+            paye: "💰 Ce pour quoi je peux être payé",
+            monde: "🌍 Ce dont le monde a besoin"
+        };
+
+        Object.keys(data).forEach(type => {
+            const container = document.getElementById(`result-${type}`);
+            let content = `<h4>${titles[type]}</h4><ul>`;
+            data[type].forEach(item => {
+                content += `<li>${item}</li>`;
+            });
+            content += '</ul>';
+            container.innerHTML = content;
+        });
+    }
+    
+    document.getElementById('download-btn').addEventListener('click', function() {
+        const captureElement = document.getElementById('ikigai-capture');
+        html2canvas(captureElement, {
+            backgroundColor: '#ffffff',
+            scale: 2
+        }).then(canvas => {
+            const image = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = 'mon-ikigai.png';
+            link.click();
+        });
+    });
+
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de Correspondance Mis à Jour - Activités et Actes Professionnels</title>
+    <title>Tableau de Correspondance par Domaines de Compétences</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -22,7 +22,7 @@
         }
         
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #F87171 0%, #FBBF24 100%); /* Red to Yellow Gradient */
             color: white;
             padding: 25px;
             text-align: center;
@@ -32,6 +32,7 @@
             margin: 0;
             font-size: 24px;
             font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
         
         .header p {
@@ -54,16 +55,22 @@
         
         .legend-items {
             display: flex;
-            gap: 25px;
+            gap: 15px 25px;
             flex-wrap: wrap;
         }
         
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             font-size: 13px;
             color: #555;
+        }
+        .legend-color-box {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.1);
         }
         
         .table-container {
@@ -77,7 +84,7 @@
         }
         
         th {
-            background: #6c757d;
+            background: #4A5568; /* Darker Gray */
             color: white;
             padding: 12px 8px;
             text-align: center;
@@ -85,15 +92,17 @@
             font-size: 11px;
             line-height: 1.3;
             min-width: 80px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         th.activity-col {
-            background: #495057;
+            background: #2D3748; /* Even Darker Gray */
             text-align: left;
-            min-width: 250px;
-            position: sticky;
+            min-width: 300px;
             left: 0;
-            z-index: 10;
+            z-index: 11;
         }
         
         td {
@@ -106,23 +115,55 @@
         td.activity-cell {
             text-align: left;
             font-weight: 500;
-            background: #f8f9fa;
+            background: #fff;
             border-right: 2px solid #dee2e6;
             position: sticky;
             left: 0;
             z-index: 5;
         }
         
-        tr:nth-child(even) {
-            background-color: #fdfdfd;
+        a.activity-link {
+            color: #0D9488; /* Dark Turquoise */
+            text-decoration: none;
+            font-weight: 600;
+        }
+        a.activity-link:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .domain-header-row {
+            font-weight: bold;
+        }
+        .domain-header-row td {
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 14px;
+            color: #2D3748;
+        }
+        .domain-question {
+            font-style: italic;
+            font-weight: normal;
+            color: #555;
+            margin-left: 5px;
+            font-size: 13px;
         }
         
-        tr:hover {
-            background-color: #e3f2fd;
+        /* Domain Colors - LS4Y Palette */
+        .bg-personnalite { background-color: #99F6E4; } /* Light Turquoise */
+        .bg-autopromotion { background-color: #FEF08A; } /* Light Yellow */
+        .bg-bienetre { background-color: #A7F3D0; } /* Light Green/Turquoise */
+        .bg-finances { background-color: #FECACA; } /* Light Red */
+        .bg-action { background-color: #F87171; color: white; } /* Strong Red */
+        .bg-action .domain-question { color: #FFD2D2; }
+
+
+        tr:hover .activity-cell, tr:hover > td {
+            background-color: #F0FDFA; /* Very light turquoise for hover */
         }
         
         .check-mark {
-            color: #28a745;
+            color: #16A34A; /* Green */
             font-size: 16px;
             font-weight: bold;
         }
@@ -134,14 +175,7 @@
             margin-top: 4px;
         }
         
-        .icon {
-            font-size: 14px;
-            padding: 2px;
-        }
-        
-        .individual { color: #007bff; }
-        .collective { color: #28a745; }
-        .autonomous { color: #ffc107; }
+        .icon { font-size: 14px; padding: 2px; }
         
         .footer {
             background: #f1f3f4;
@@ -150,39 +184,101 @@
             color: #666;
             font-size: 12px;
         }
-        
-        @media (max-width: 768px) {
-            .legend-items {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            th, td {
-                padding: 8px 4px;
-                font-size: 11px;
-            }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
         }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 0;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation-name: animatetop;
+            animation-duration: 0.4s;
+        }
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+        .modal-header {
+            padding: 16px;
+            background-color: #2DD4BF; /* Turquoise */
+            color: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+        .close-button {
+            color: white;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-body {
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .modal-body p {
+            margin-bottom: 12px;
+        }
+        .modal-body ul {
+            list-style-position: inside;
+            padding-left: 10px;
+            margin-top: 5px;
+        }
+        .modal-section-title {
+            font-weight: bold;
+            color: #333;
+            margin-top: 15px;
+        }
+        
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Correspondance Activités - Actes Professionnels (Mis à jour)</h1>
+            <h1>Tableau de Correspondance par Domaines de Compétences</h1>
             <p>Guide de référence pour l'accompagnement des jeunes</p>
         </div>
         
         <div class="legend">
-            <h3>Légende des modalités pédagogiques</h3>
+            <h3>Légende</h3>
             <div class="legend-items">
-                <div class="legend-item"><span class="icon individual">👤</span><span>Individuel</span></div>
-                <div class="legend-item"><span class="icon collective">👥</span><span>Collectif</span></div>
-                <div class="legend-item"><span class="icon autonomous">🔄</span><span>Autonomie</span></div>
-                <div class="legend-item"><span class="check-mark">✅</span><span>Activité recommandée</span></div>
+                <div class="legend-item"><span class="legend-color-box bg-personnalite"></span><span>&#10084;&#65039;&#8205;&#129658; Personnalité</span></div>
+                <div class="legend-item"><span class="legend-color-box bg-autopromotion"></span><span>&#128227; Auto-promotion</span></div>
+                <div class="legend-item"><span class="legend-color-box bg-bienetre"></span><span>&#129496; Bien-être</span></div>
+                <div class="legend-item"><span class="legend-color-box bg-finances"></span><span>&#128176; Finances & Ressources</span></div>
+                <div class="legend-item"><span class="legend-color-box bg-action" style="color:black;"></span><span>&#128640; Passage à l'action</span></div>
+                <div class="legend-item"><span class="icon">&#128100;</span><span>Individuel</span></div>
+                <div class="legend-item"><span class="icon">&#128101;</span><span>Collectif</span></div>
+                <div class="legend-item"><span class="icon">&#128260;</span><span>Autonomie</span></div>
             </div>
         </div>
         
         <div class="table-container">
-            <table>
+            <table id="activities-table">
                 <thead>
                     <tr>
                         <th class="activity-col">Activité</th>
@@ -204,514 +300,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Module Connaissance de soi -->
-                    <tr>
-                        <td class="activity-cell">16 Personnalités</td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Faire le point</td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Image de soi vs Vu par les autres</td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Matching</td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon autonomous">🔄</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon autonomous">🔄</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Recevoir du Feedback</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Mes objectifs personnels</td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Liste des valeurs</td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Moi au sommet de mon art</td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Auto présentation</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Parcours Ressources et Compétences</td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Image de marque personnelle</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span><span class="icon autonomous">🔄</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Concevez votre zine</td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span><span class="icon autonomous">🔄</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Jeu de simulation (négociation, vente)</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <!-- Module Bien-être et résilience -->
-                    <tr>
-                        <td class="activity-cell">La Roue des émotions</td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Trois bonnes choses</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Réseau de soutien social</td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Evaluation des besoins</td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Stressomètre</td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Prioriser ses routines</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Arbre de la résilience</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <!-- Module Insertion et Budget -->
-                    <tr>
-                        <td class="activity-cell">Portfolio de démarcation</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Vraies vies, vrais défis</td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Du salaire à la poche</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Concept d'épargne</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span><span class="icon autonomous">🔄</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Etude de cas</td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <!-- Module Passage à l'action -->
-                    <tr>
-                        <td class="activity-cell">Arrêtez de souhaiter, commencez à réaliser</td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Objectif SMART</td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                    </tr>
-                    <tr>
-                        <td class="activity-cell">Ikigai : Concevez vous</td>
-                        <td></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span><span class="icon autonomous">🔄</span></div></td>
-                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                    <!-- Content will be generated by JavaScript -->
                 </tbody>
             </table>
         </div>
@@ -719,5 +308,182 @@
             <p>Ce tableau est un outil d'aide à la décision pour les conseillers. Les correspondances sont des recommandations et peuvent être adaptées au profil de chaque jeune.</p>
         </div>
     </div>
+
+    <!-- The Modal -->
+    <div id="action-sheet-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close-button">&times;</span>
+          <h2 id="modal-title"></h2>
+        </div>
+        <div class="modal-body" id="modal-body">
+          <!-- Action sheet content goes here -->
+        </div>
+      </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Data Definition ---
+    const icons = {
+        perso: '&#128100;', collectif: '&#128101;', autonomie: '&#128260;', check: '&#9989;',
+        domaines: {
+            personnalite: '&#10084;&#65039;&#8205;&#129658;', autopromotion: '&#128227;', bienetre: '&#129496;', finances: '&#128176;', action: '&#128640;'
+        }
+    };
+
+    const stages = {
+        "ETAPE_1": {
+            title: "ÉTAPE 1 : Diagnostic / Accueil",
+            tools: "📊 Grille LS initiale, 💬 Diagnostic motivationnel, 🧠 Évaluation santé mentale."
+        },
+        "ETAPE_2": {
+            title: "ÉTAPE 2 : Remobilisation",
+            tools: "💡 Ateliers Life Skills, 🤝 Activité collective, 💻 Plateforme."
+        },
+        "ETAPE_3": {
+            title: "ÉTAPE 3 : Exploration / Orientation",
+            tools: "🗺️ Outils du guidebook, 💼 Ateliers métiers, 🎬 Capsules vidéo."
+        },
+        "ETAPE_4": {
+            title: "ÉTAPE 4 : Mise en action / Formation",
+            tools: "📚 Module guidebook, ✅ Grille de suivi, 📈 Évaluation avec référent."
+        },
+        "ETAPE_5": {
+            title: "ÉTAPE 5 : Autonomisation / Suivi",
+            tools: "💻 Plateforme LS4YOU, 📊 Grille LS intermédiaire et finale, 🏆 Portfolio."
+        }
+    };
+
+    const domains = [
+        {
+            name: `${icons.domaines.personnalite} Personnalité`, question: "Qui suis-je ?", colorClass: "bg-personnalite",
+            activities: [
+                { code: "1.1", name: "Test des 16 personnalités", objective: "🎭 Ouvrir le dialogue sur les préférences et forces.", stage: stages.ETAPE_1, links: { 'Diagnostic CEJ': [icons.perso, icons.autonomie], 'Définition du projet': [icons.perso], 'Compétences psychosociales': [icons.perso] } },
+                { code: "1.2", name: "Faire valoir un point", objective: "🗺️ Identifier et organiser les compétences et intérêts.", stage: stages.ETAPE_1, links: { 'Premier accueil': [icons.perso], 'Diagnostic CEJ': [icons.perso], 'Définition du projet': [icons.perso], 'Suivi / évolution du parcours': [icons.perso] } },
+                { code: "1.3", name: "Image de soi vs. Perception externe", objective: "Confronter la perception de soi à celle des autres pour renforcer l'estime de soi.", stage: stages.ETAPE_2, links: { 'Définition du projet': [icons.perso, icons.collectif], 'Insertion pro / emploi': [icons.collectif], 'Compétences psychosociales': [icons.collectif] } },
+                { code: "1.4", name: "Recevoir du feedback", objective: "Apprendre à recevoir et utiliser les critiques constructives pour s'améliorer.", stage: stages.ETAPE_5, links: { 'Insertion pro / emploi': [icons.perso, icons.collectif], 'Compétences psychosociales': [icons.collectif], 'Suivi / évolution du parcours': [icons.perso] } },
+                { code: "1.5", name: "Définition d'objectifs personnels", objective: "Définir des objectifs personnels et professionnels clairs et réalisables.", stage: stages.ETAPE_3, links: { 'Diagnostic CEJ': [icons.perso], 'Définition du projet': [icons.perso, icons.autonomie], 'Suivi / évolution du parcours': [icons.perso] } },
+                { code: "1.6", name: "Liste de valeurs", objective: "Identifier les valeurs personnelles fondamentales pour aligner le projet professionnel.", stage: stages.ETAPE_3, links: { 'Diagnostic CEJ': [icons.perso], 'Définition du projet': [icons.perso, icons.collectif] } },
+            ]
+        },
+        {
+            name: `${icons.domaines.autopromotion} Auto-promotion`, question: "Comment valoriser ce que je suis et ce que je sais faire ?", colorClass: "bg-autopromotion",
+            activities: [
+                { code: "2.1", name: "Moi au sommet de mon art", objective: "Identifier les moments de réussite pour prendre conscience de ses forces et compétences.", stage: stages.ETAPE_2, links: { 'Définition du projet': [icons.perso, icons.collectif], 'Insertion pro / emploi': [icons.perso], 'Compétences psychosociales': [icons.perso] } },
+                { code: "2.2", name: "Montrez-vous sous votre meilleur jour", objective: "🎤 Structurer un discours percutant et confiant.", stage: stages.ETAPE_4, links: { 'Insertion pro / emploi': [icons.perso, icons.collectif], 'Alternance': [icons.collectif], 'Compétences psychosociales': [icons.collectif] } },
+                { code: "2.3", name: "Parcours Ressources et Compétences", objective: "Cartographier le parcours du jeune pour identifier les compétences acquises, formelles ou non.", stage: stages.ETAPE_1, links: { 'Diagnostic CEJ': [icons.perso], 'Définition du projet': [icons.perso], 'Insertion pro / emploi': [icons.perso], 'Suivi / évolution du parcours': [icons.perso] } },
+                { code: "2.4", name: "Image de marque personnelle", objective: "👤 Réfléchir à l'image renvoyée et à la valeur ajoutée.", stage: stages.ETAPE_4, links: { 'Insertion pro / emploi': [icons.perso, icons.collectif, icons.autonomie], 'Alternance': [icons.perso, icons.autonomie] } },
+                { code: "2.5", name: "Concevez votre zine", objective: "Permettre une expression créative de soi pour renforcer l'identité et la confiance.", stage: stages.ETAPE_2, links: { 'Définition du projet': [icons.perso, icons.collectif, icons.autonomie], 'Compétences psychosociales': [icons.collectif], 'Citoyenneté / engagement': [icons.collectif] } },
+                { code: "2.6", name: "Jeu de Simulation (négociation, vente)", objective: "🤝 Préparer aux situations de communication à enjeu.", stage: stages.ETAPE_4, links: { 'Insertion pro / emploi': [icons.collectif], 'Alternance': [icons.collectif], 'Compétences psychosociales': [icons.collectif] } }
+            ]
+        },
+        {
+            name: `${icons.domaines.bienetre} Bien-être`, question: "Comment prendre soin de moi pour être en capacité d'agir ?", colorClass: "bg-bienetre",
+            activities: [
+                { code: "3.1", name: "La Roue des émotions", objective: "🎡 Identifier, nommer et comprendre les émotions.", stage: stages.ETAPE_1, links: { 'Santé / bien-être': [icons.perso, icons.autonomie], 'Compétences psychosociales': [icons.perso] } },
+                { code: "3.2", name: "Trois bonnes choses", objective: "Pratiquer la gratitude pour améliorer le bien-être et la vision positive.", stage: stages.ETAPE_2, links: { 'Santé / bien-être': [icons.perso, icons.autonomie], 'Compétences psychosociales': [icons.perso] } },
+                { code: "3.3", name: "Réseau de soutien social", objective: "Identifier les personnes et structures ressources dans son environnement.", stage: stages.ETAPE_1, links: { 'Diagnostic CEJ': [icons.perso], 'Santé / bien-être': [icons.perso], 'Accès aux droits': [icons.perso], 'Compétences psychosociales': [icons.perso] } },
+                { code: "3.4", name: "Évaluation des besoins", objective: "Faire le point sur les besoins matériels et financiers pour sécuriser le parcours.", stage: stages.ETAPE_1, links: { 'Premier accueil': [icons.perso], 'Diagnostic CEJ': [icons.perso], 'Logement': [icons.perso], 'Santé / bien-être': [icons.perso], 'Accès aux droits': [icons.perso] } },
+                { code: "3.5", name: "Stressomètre", objective: "📈 Prendre conscience du niveau de stress et de ses causes.", stage: stages.ETAPE_1, links: { 'Diagnostic CEJ': [icons.perso], 'Santé / bien-être': [icons.perso, icons.autonomie], 'Compétences psychosociales': [icons.perso] } },
+                { code: "3.6", name: "Prioriser ses routines", objective: "🗓️ Mettre en place des habitudes saines.", stage: stages.ETAPE_5, links: { 'Santé / bien-être': [icons.perso, icons.collectif], 'Suivi / évolution du parcours': [icons.perso] } },
+                { code: "3.7", name: "Arbre de la Résilience", objective: "🌳 Visualiser les ressources internes et externes.", stage: stages.ETAPE_2, links: { 'Santé / bien-être': [icons.perso, icons.collectif], 'Compétences psychosociales': [icons.perso] } },
+                { code: "3.8", name: "Portfolio de démarcation", objective: "Créer un support visuel pour présenter ses compétences et réalisations.", stage: stages.ETAPE_5, links: { 'Insertion pro / emploi': [icons.perso, icons.autonomie], 'Formation': [icons.perso], 'Alternance': [icons.perso] } }
+            ]
+        },
+        {
+            name: `${icons.domaines.finances} Finances & Ressources`, question: "Comment gérer mes ressources pour être autonome ?", colorClass: "bg-finances",
+            activities: [
+                { code: "4.1", name: "Défis de la vie réelle", objective: "🎲 Expérimenter la gestion budgétaire ludiquement.", stage: stages.ETAPE_5, links: { 'Définition du projet': [icons.collectif], 'Compétences psychosociales': [icons.collectif] } },
+                { code: "4.2", name: "Du salaire à la poche", objective: "Comprendre une fiche de paie et la différence entre salaire brut et net.", stage: stages.ETAPE_5, links: { 'Insertion pro / emploi': [icons.collectif], 'Accès aux droits': [icons.perso, icons.collectif] } },
+                { code: "4.3", name: "Arrêtez de souhaiter, commencez à réaliser", objective: "🎯 Transformer un rêve en plan d'action concret.", stage: stages.ETAPE_4, links: { 'Définition du projet': [icons.perso, icons.autonomie], 'Suivi / évolution du parcours': [icons.perso] } },
+                { code: "4.4", name: "Littératie financière - Études de cas", objective: "💡💰 Résoudre des problèmes financiers concrets.", stage: stages.ETAPE_3, links: { 'Définition du projet': [icons.collectif], 'Orientation': [icons.collectif], 'Formation': [icons.collectif] } }
+            ]
+        },
+        {
+            name: `${icons.domaines.action} Passage à l'action`, question: "Comment atteindre mes objectifs ?", colorClass: "bg-action",
+            activities: [
+                 { code: "5.1", name: "Ikigai - Concevez-vous", objective: "Aider le jeune à trouver un équilibre entre ce qu'il aime, ce pour quoi il est doué et ce dont le monde a besoin.", stage: stages.ETAPE_3, links: { 'Diagnostic CEJ': [icons.perso], 'Définition du projet': [icons.perso, icons.collectif, icons.autonomie], 'Orientation': [icons.perso] } }
+            ]
+        }
+    ];
+
+    // --- Table & Modal Generation ---
+    const tableBody = document.querySelector("#activities-table tbody");
+    const headers = Array.from(document.querySelectorAll("#activities-table thead th")).slice(1).map(th => th.innerHTML.replace('<br>', ' '));
+    const activitiesMap = new Map();
+
+    domains.forEach(domain => {
+        const domainRow = tableBody.insertRow();
+        domainRow.className = `domain-header-row ${domain.colorClass}`;
+        const domainCell = domainRow.insertCell();
+        domainCell.colSpan = headers.length + 1;
+        domainCell.innerHTML = `${domain.name} <span class="domain-question">${domain.question}</span>`;
+
+        domain.activities.forEach(activity => {
+            activitiesMap.set(activity.code, { ...activity, domainName: domain.name });
+            const row = tableBody.insertRow();
+            let rowHTML = `<td class="activity-cell"><a href="#" class="activity-link" data-code="${activity.code}"><strong>${activity.code}</strong> - ${activity.name}</a></td>`;
+            
+            headers.forEach(header => {
+                const link = activity.links[header];
+                if (link && Array.isArray(link)) {
+                    const iconSpans = link.map(icon => `<span class="icon">${icon}</span>`).join('');
+                    rowHTML += `<td><span class="check-mark">${icons.check}</span><div class="modality-icons">${iconSpans}</div></td>`;
+                } else {
+                    rowHTML += '<td></td>';
+                }
+            });
+            row.innerHTML = rowHTML;
+        });
+    });
+
+    // --- Modal Logic ---
+    const modal = document.getElementById("action-sheet-modal");
+    const modalTitle = document.getElementById("modal-title");
+    const modalBody = document.getElementById("modal-body");
+    const closeButton = document.querySelector(".close-button");
+
+    tableBody.addEventListener('click', function(event) {
+        const link = event.target.closest('.activity-link');
+        if (link) {
+            event.preventDefault();
+            const code = link.dataset.code;
+            const activityData = activitiesMap.get(code);
+            if (activityData) {
+                openModal(activityData);
+            }
+        }
+    });
+
+    function openModal(data) {
+        modalTitle.innerHTML = `Fiche Action: ${data.code} - ${data.name}`;
+        
+        let bodyContent = `<p><strong class="modal-section-title">Domaine :</strong> ${data.domainName}</p>`;
+        bodyContent += `<p><strong class="modal-section-title">Objectif Clé de l'Activité :</strong> ${data.objective}</p>`;
+        bodyContent += `<hr style="margin: 15px 0;">`;
+        bodyContent += `<p><strong class="modal-section-title">${data.stage.title}</strong></p>`;
+        bodyContent += `<p><strong>Outils LS4YOU Suggérés :</strong> ${data.stage.tools}</p>`;
+        
+        bodyContent += `<br><p><em>Le contenu détaillé de la fiche action (déroulé, matériel, etc.) sera affiché ici.</em></p>`;
+        
+        modalBody.innerHTML = bodyContent;
+        modal.style.display = "block";
+    }
+
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    closeButton.onclick = closeModal;
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+});
+</script>
+
 </body>
 </html>
+

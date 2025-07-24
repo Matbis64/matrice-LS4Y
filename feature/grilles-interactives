@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grilles d'Auto-évaluation Interactives - LS4YOU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .tab-button.active {
+            border-color: #F87171; /* Red */
+            background-color: #F87171;
+            color: white;
+        }
+        .level-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .level-card:hover {
+            transform: translateY(-5px);
+        }
+        .level-card.selected {
+            transform: translateY(-5px);
+            box-shadow: 0 0 0 3px #2DD4BF; /* Turquoise */
+            border-color: #2DD4BF;
+        }
+        .progress-bar-fill {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+    <div class="container max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="header bg-gradient-to-r from-red-500 to-yellow-400 text-white p-6 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold">Mon Auto-évaluation LS4YOU</h1>
+            <p class="mt-2 text-sm md:text-base opacity-90">Découvre tes forces et tes points de développement !</p>
+        </div>
+
+        <div class="p-6">
+            <!-- Tabs -->
+            <div id="tabs" class="flex flex-wrap justify-center gap-2 md:gap-4 mb-6 border-b pb-4">
+                <!-- Tab buttons will be inserted here by JS -->
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <p class="text-center text-sm font-semibold text-gray-600 mb-2">Progression</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-turquoise-500 bg-gradient-to-r from-turquoise-400 to-teal-500 h-2.5 rounded-full progress-bar-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div id="tab-content">
+                <!-- Content for each domain will be inserted here by JS -->
+            </div>
+             <div class="mt-8 text-center">
+                <button id="reset-button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                    Recommencer
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+const evaluationData = {
+    personnalite: {
+        title: "❤️‍🩹 Personnalité",
+        competencies: {
+            "Me connaître moi-même": [
+                "J'ai du mal à identifier et à parler de ce que je fais bien et des domaines où je peux m'améliorer. J’ai du mal à accepter mes erreurs et à les utiliser pour progresser. Ce sont les autres qui arrivent à me trouver des points forts plutôt que moi.",
+                "J’ai conscience de mes forces et en quoi elles peuvent m’être utiles. J’ai conscience de mes limites et des domaines dans lesquels je dois m’améliorer. Je sais qu’il me faut avant tout utiliser mes forces pour atteindre mes objectifs. Je ne vois plus toujours mes faiblesses comme des échecs mais comme des opportunités pour progresser.",
+                "Je suis capable d’identifier mes forces de manière objective et de les utiliser à bon escient en fonction des contextes. Je comprends comment mes forces peuvent me permettre de réussir dans ma vie personnelle et professionnelle. J’accepte mes faiblesses et je sais quand je dois demander de l’aide ou adapter ma stratégie.",
+                "Je trouve des moyens de contourner mes difficultés." // Note: Expert level for this competency is short in the guide.
+            ],
+            "Définition d'objectifs personnels": [
+                "Je ne suis pas vraiment au clair de ce que je souhaite atteindre dans ma vie. Si je sais ce que je veux, je ne sais pas comment m’y prendre pour y arriver, en définissant des étapes par exemple. Mes objectifs peuvent changer en fonction des opinions des autres ou des événements qui se produisent autour de moi. Je manque de conviction et de détermination.",
+                "Je sais ce qui est important pour moi et où je veux aller. Mes objectifs sont plus précis et je peux les définir clairement. Je suis capable d’avoir un équilibre entre des objectifs immédiats et des objectifs plus lointains. J’ai un plan relativement clair pour avancer en prenant en compte les contraintes et les ressources dont je dispose. Je sais me concentrer sur les choses les plus importantes et utiliser mon temps et mon énergie de manière appropriée en m’organisant.",
+                "Je sais ce que je veux accomplir et pourquoi c’est important pour moi. Mes objectifs sont ambitieux mais réalistes.",
+                "Je suis capable de transformer mes rêves en objectifs concrets et de mettre en place des plans d'action pour les atteindre. Je suis persévérant et je ne me laisse pas décourager par les obstacles." // Assuming expert level based on progression
+            ]
+        }
+    },
+    autopromotion: {
+        title: "📢 Auto-promotion",
+        competencies: {
+            "Mon image de moi-même et celle que les autres ont de moi": [
+                "Je me sens mal à l'aise et j'ai peur d'être jugé négativement. Je peux avoir tendance à me sous-estimer et à minimiser mes compétences. J'ai du mal à reconnaître mes réussites et à les valoriser. Je peux avoir tendance à attribuer mes succès à la chance ou à l'aide des autres.",
+                "Je suis capable de parler de mes forces et de mes réussites sans fausse modestie ni arrogance. Je sais mettre en valeur mes forces et communiquer ma valeur ajoutée de manière convaincante. Je suis à l'aise pour présenter mes idées, partager mes connaissances et prendre des initiatives, que ce soit en public, lors de réunions ou dans des situations plus informelles.",
+                "Je suis capable de convaincre les autres de mes forces et de mes réussites en m’exprimant clairement et avec assurance. J’aime relever des défis et je cherche à avoir des responsabilités ou à prendre des initiatives pour montrer mes compétences aux autres.",
+                "J'inspire confiance et je suis reconnu pour mon expertise. Je suis capable de mobiliser les autres autour de mes idées et de mes projets." // Assuming expert level
+            ],
+            "Vendre ma marque personnelle": [
+                "Je ne sais pas toujours comment me décrire, mettre en avant mes atouts et communiquer ma valeur ajoutée. Je préfère rester discret et ne pas attirer l'attention sur moi. Je pense que parler de soi est arrogant et prétentieux.",
+                "Je suis convaincu que mes connaissances et mes compétences peuvent être utiles aux autres, et je n'hésite pas à les partager. Je comprends que parler de moi et de mes réussites est un atout pour accéder à de nouvelles opportunités ou devenir plus influent.",
+                "Je sais utiliser les réseaux sociaux, mon réseau professionnel, les événements (…) pour partager mes compétences et mes succès. Je suis à l'aise pour parler de moi et je sais comment capter l'attention des personnes à qui je m’adresse. Lorsque je parle de moi, je sais identifier mon public cible et adapter mon message en conséquence.",
+                "Je maîtrise les codes de la communication et je sais comment me présenter de manière authentique et convaincante auprès de nombreux publics. Je sais clairement ce que je veux obtenir et je suis capable de négocier pour l'obtenir."
+            ]
+        }
+    },
+    bienetre: {
+        title: "🧘 Bien-être",
+        competencies: {
+            "Équilibre de vie": [
+                "Je ne vois pas toujours comment mes habitudes de vie, mes pensées et mes émotions peuvent influencer ma santé globale. Je peux avoir des habitudes néfastes pour ma santé, comme une mauvaise alimentation, un manque de sommeil ou une consommation excessive d'alcool ou de drogues (tabac, etc), sans penser aux conséquences à long terme.",
+                "Je peux avoir des périodes ou je prends soin de mon corps et/ou de mon bien-être mental et d’autres moments où je néglige totalement l’un ou l’autre. Je peux me sentir débordé par le travail et négliger ma vie personnelle et mes loisirs, ou au contraire, consacrer trop de temps à mes loisirs et négliger ma vie professionnelle.",
+                "Je sais que mes pensées, mes émotions et mes habitudes de vie ont un impact direct sur mon corps et vice versa. Je suis curieux et je teste différentes méthodes pour découvrir les activités qui me permettent de me sentir bien dans mon corps et dans ma tête. J’ai conscience que mes choix de vie (alimentation, sommeil, etc.) ont un impact sur ma santé.",
+                "Je suis capable de maintenir un équilibre sain entre ma vie personnelle et professionnelle. Je sais comment gérer mon stress et mes émotions de manière constructive." // Assuming expert level
+            ],
+            "Résilience mentale": [
+                "Je ne suis pas toujours conscient des situations, des pensées ou des émotions qui déclenchent du stress chez moi. Lorsque je fais face à des problèmes, j’ai plutôt tendance à les fuir qu’à essayer de les résoudre. J’ai tendance à ruminer mes problèmes et j'ai du mal à me détendre et à retrouver mon calme après une situation stressante.",
+                "J’ai conscience de ce qui peut être source de stress chez moi et de l’impact que cela peut avoir sur mon bien-être. Je reconnais l'importance de demander de l'aide et je n'hésite pas à solliciter mon entourage ou des professionnels.",
+                "Je sais tirer des leçons de mes échecs et de mes expériences difficiles et j’ai conscience de l’importance d’avoir une attitude positive et optimiste pour rebondir après une étape difficile. Je m’intéresse au sujet de la résilience en lisant des livres, en suivant des experts ou des formations et je m'inspire de personnes résilientes.",
+                "Je ne vois plus les obstacles comme des menaces, mais comme des occasions de développer mes compétences et de grandir."
+            ]
+        }
+    },
+    finances: {
+        title: "💰 Finances & Ressources",
+        competencies: {
+            "Mentalité positive et connaissances en matière d'argent": [
+                "Je m'inquiète pour mes finances et je peux me sentir dépassé par les questions d'argent. Je vois les problèmes d'argent comme des échecs personnels et je peux me sentir découragé face aux difficultés financières.",
+                "Je vois de plus en plus l'argent comme un outil qui me permet d'atteindre mes objectifs, de réaliser mes rêves et de créer des opportunités. Je suis capable de prendre du recul face aux difficultés financières et de trouver des solutions responsables sans me laisser envahir par l'anxiété.",
+                "Je comprends les bases de la gestion de budget, de l'épargne, du crédit et de l'endettement. Je vois l'argent comme un outil qui me permet de réaliser mes rêves, d'atteindre mes objectifs et de vivre une vie épanouissante.",
+                "Je ne me laisse pas décourager par les obstacles financiers, mais je les vois comme des occasions de développer mes compétences en gestion financière."
+            ],
+            "Garder une trace de ses finances": [
+                "Je sais que je dois gagner de l'argent pour pouvoir en dépenser, mais j'ai du mal à suivre mes dépenses et à établir un budget. Je ne suis pas vraiment mes finances. Je peux noter certaines dépenses de temps en temps, mais je ne le fais pas de manière systématique.",
+                "Je peux trouver cela fastidieux ou inutile. Je préfère ne pas trop y penser et gérer mon argent \"au feeling\". Je n'ai pas de vue d'ensemble claire de ma situation financière.",
+                "J'utilise un outil ou une méthode qui me convient, que ce soit un carnet de comptes, une application mobile, un tableur ou un logiciel de gestion financière pour suivre mon budget. Je note mes revenus et mes dépenses systématiquement.",
+                "Grâce au suivi régulier de mes finances, je peux identifier les postes de dépenses importants, repérer les dépenses qui pourraient être évitées et prendre des mesures pour améliorer ma gestion budgétaire. Je fais un suivi continu de tous mes revenus, dépenses, investissements et autres transactions financières."
+            ]
+        }
+    }
+};
+
+const tabsContainer = document.getElementById('tabs');
+const contentContainer = document.getElementById('tab-content');
+const progressBar = document.getElementById('progress-bar');
+const resetButton = document.getElementById('reset-button');
+const levels = ["Débutant", "Intermédiaire", "Avancé", "Expert"];
+let totalCompetencies = 0;
+let selectedCompetencies = {};
+
+function updateProgress() {
+    const selectedCount = Object.keys(selectedCompetencies).length;
+    const progress = totalCompetencies > 0 ? (selectedCount / totalCompetencies) * 100 : 0;
+    progressBar.style.width = `${progress}%`;
+}
+
+function selectLevel(domain, competency, levelIndex) {
+    // Store selection
+    selectedCompetencies[`${domain}-${competency}`] = levelIndex;
+
+    // Update UI
+    const cards = document.querySelectorAll(`[data-competency="${competency}"] .level-card`);
+    cards.forEach((card, index) => {
+        if (index === levelIndex) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+    });
+    updateProgress();
+}
+
+function createDomainContent(domainKey, domainData) {
+    const domainContainer = document.createElement('div');
+    domainContainer.id = domainKey;
+    domainContainer.className = 'domain-content hidden';
+
+    Object.entries(domainData.competencies).forEach(([competency, descriptions]) => {
+        const competencyId = `${domainKey}-${competency}`;
+        const competencyContainer = document.createElement('div');
+        competencyContainer.className = 'mb-8 p-4 border rounded-lg shadow-sm';
+        competencyContainer.dataset.competency = competency;
+
+        const title = document.createElement('h3');
+        title.className = 'text-lg font-bold text-gray-800 mb-4 text-center';
+        title.textContent = competency;
+        competencyContainer.appendChild(title);
+
+        const levelsContainer = document.createElement('div');
+        levelsContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4';
+        
+        descriptions.forEach((desc, index) => {
+            const card = document.createElement('div');
+            card.className = 'level-card border-2 border-gray-200 rounded-lg p-4 cursor-pointer bg-white shadow-md flex flex-col';
+            card.onclick = () => selectLevel(domainKey, competency, index);
+
+            const levelTitle = document.createElement('h4');
+            levelTitle.className = 'font-bold text-center mb-2 text-red-500';
+            levelTitle.textContent = levels[index];
+            
+            const descP = document.createElement('p');
+            descP.className = 'text-sm text-gray-600 flex-grow';
+            descP.textContent = desc;
+
+            card.appendChild(levelTitle);
+            card.appendChild(descP);
+            levelsContainer.appendChild(card);
+        });
+
+        competencyContainer.appendChild(levelsContainer);
+        domainContainer.appendChild(competencyContainer);
+    });
+
+    return domainContainer;
+}
+
+function switchTab(domainKey) {
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[data-domain="${domainKey}"]`).classList.add('active');
+
+    document.querySelectorAll('.domain-content').forEach(content => content.classList.add('hidden'));
+    document.getElementById(domainKey).classList.remove('hidden');
+}
+
+function initialize() {
+    totalCompetencies = 0;
+    selectedCompetencies = {};
+    tabsContainer.innerHTML = ''; // Clear previous tabs if any
+    contentContainer.innerHTML = ''; // Clear previous content if any
+
+    Object.entries(evaluationData).forEach(([key, data]) => {
+        totalCompetencies += Object.keys(data.competencies).length;
+
+        // Create tab button
+        const button = document.createElement('button');
+        button.className = 'tab-button px-4 py-2 text-sm font-semibold rounded-lg border-2 border-transparent transition-colors';
+        button.textContent = data.title;
+        button.dataset.domain = key;
+        button.onclick = () => switchTab(key);
+        tabsContainer.appendChild(button);
+
+        // Create content
+        const content = createDomainContent(key, data);
+        contentContainer.appendChild(content);
+    });
+
+    // Activate first tab
+    if (tabsContainer.firstElementChild) {
+        switchTab(tabsContainer.firstElementChild.dataset.domain);
+    }
+    updateProgress();
+}
+
+resetButton.addEventListener('click', () => {
+    selectedCompetencies = {};
+    document.querySelectorAll('.level-card.selected').forEach(card => card.classList.remove('selected'));
+    updateProgress();
+});
+
+
+initialize();
+
+</script>
+</body>
+</html>

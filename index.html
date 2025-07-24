@@ -3,443 +3,721 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de Correspondance Interactif avec IA - Activités et Actes Professionnels</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Tableau de Correspondance Mis à Jour - Activités et Actes Professionnels</title>
     <style>
-        /* Using a more modern font and some custom styles to complement Tailwind */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
         }
         
-        /* Custom style for highlighted rows */
-        .highlight {
-            background-color: #dbeafe !important; /* A light blue from Tailwind's color palette */
-            transition: background-color 0.3s ease-in-out;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
-
-        /* Sticky header for the table */
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .legend {
+            background: #f1f3f4;
+            padding: 15px 25px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .legend h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .legend-items {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #555;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
         th {
+            background: #6c757d;
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 11px;
+            line-height: 1.3;
+            min-width: 80px;
+        }
+        
+        th.activity-col {
+            background: #495057;
+            text-align: left;
+            min-width: 250px;
             position: sticky;
-            top: 0;
+            left: 0;
             z-index: 10;
         }
-
-        /* Sticky first column (Activity) */
-        th.activity-col, td.activity-cell {
+        
+        td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+        
+        td.activity-cell {
+            text-align: left;
+            font-weight: 500;
+            background: #f8f9fa;
+            border-right: 2px solid #dee2e6;
             position: sticky;
             left: 0;
             z-index: 5;
         }
         
-        /* Custom scrollbar for better aesthetics */
-        .table-container::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        tr:nth-child(even) {
+            background-color: #fdfdfd;
         }
-        .table-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
+        
+        tr:hover {
+            background-color: #e3f2fd;
         }
-        .table-container::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
+        
+        .check-mark {
+            color: #28a745;
+            font-size: 16px;
+            font-weight: bold;
         }
-        .table-container::-webkit-scrollbar-thumb:hover {
-            background: #555;
+        
+        .modality-icons {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 4px;
         }
-
-        /* Simple spinner animation */
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: #09f;
-            animation: spin 1s ease infinite;
+        
+        .icon {
+            font-size: 14px;
+            padding: 2px;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+        .individual { color: #007bff; }
+        .collective { color: #28a745; }
+        .autonomous { color: #ffc107; }
+        
+        .footer {
+            background: #f1f3f4;
+            padding: 20px 25px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .legend-items {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            th, td {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-50 p-4 md:p-8">
-
-    <div class="container max-w-7xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="header bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 text-center">
-            <h1 class="text-2xl md:text-3xl font-bold">Tableau de Correspondance Interactif</h1>
-            <p class="mt-2 text-sm md:text-base opacity-90">Guide d'accompagnement des jeunes, assisté par l'IA</p>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Correspondance Activités - Actes Professionnels (Mis à jour)</h1>
+            <p>Guide de référence pour l'accompagnement des jeunes</p>
         </div>
-
-        <!-- Gemini AI Assistant Section -->
-        <div id="ai-assistant" class="p-5 bg-gray-100 border-b border-gray-200">
-            <h2 class="text-xl font-bold text-gray-800 mb-3">Assistant Conseiller IA</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Feature 1: Suggest Activities -->
-                <div>
-                    <label for="situation-input" class="block text-sm font-medium text-gray-700 mb-1">1. Décrivez la situation du jeune</label>
-                    <textarea id="situation-input" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ex: 'Jeune de 19 ans, a quitté le lycée sans diplôme. Manque de confiance en lui et ne sait pas quel métier l'intéresse. A besoin d'aide pour explorer des options et construire un projet.'"></textarea>
-                    <button id="suggest-activities-btn" class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        &#10024; Suggérer des activités
-                    </button>
-                </div>
-                <!-- Feature 2: Generate Action Plan -->
-                <div>
-                    <p class="block text-sm font-medium text-gray-700 mb-1">2. Cochez des activités puis générez un plan</p>
-                    <p class="text-xs text-gray-500 mb-3">Cochez manuellement les activités dans le tableau ci-dessous ou utilisez le suggérateur IA.</p>
-                    <button id="generate-plan-btn" class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        &#10024; Générer un plan d'action personnalisé
-                    </button>
-                     <button id="clear-selection-btn" class="mt-3 w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Effacer la sélection
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="legend bg-gray-50 p-5 border-b border-gray-200">
-            <h3 class="text-base font-semibold text-gray-800 mb-3">Légende des icônes</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-gray-700">
-                <div class="flex items-start gap-2">
-                    <span class="text-xl mt-[-2px]">&#128100;</span>
-                    <div>
-                        <p class="font-bold">Individuel</p>
-                        <p class="text-gray-500">Séance en tête-à-tête.</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-2">
-                    <span class="text-xl mt-[-2px]">&#128101;</span>
-                    <div>
-                        <p class="font-bold">Collectif</p>
-                        <p class="text-gray-500">Atelier ou activité de groupe.</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-2">
-                    <span class="text-xl mt-[-2px]">&#128260;</span>
-                    <div>
-                        <p class="font-bold">Autonomie</p>
-                        <p class="text-gray-500">Tâche à réaliser seul.</p>
-                    </div>
-                </div>
-                <div class="flex items-start gap-2">
-                    <span class="text-green-600 font-bold text-2xl mt-[-4px]">&#9989;</span>
-                    <div>
-                        <p class="font-bold">Recommandé</p>
-                        <p class="text-gray-500">L'acte est pertinent pour l'activité.</p>
-                    </div>
-                </div>
+        
+        <div class="legend">
+            <h3>Légende des modalités pédagogiques</h3>
+            <div class="legend-items">
+                <div class="legend-item"><span class="icon individual">👤</span><span>Individuel</span></div>
+                <div class="legend-item"><span class="icon collective">👥</span><span>Collectif</span></div>
+                <div class="legend-item"><span class="icon autonomous">🔄</span><span>Autonomie</span></div>
+                <div class="legend-item"><span class="check-mark">✅</span><span>Activité recommandée</span></div>
             </div>
         </div>
         
-        <div class="table-container overflow-x-auto">
-            <table class="w-full text-xs">
-                <thead class="bg-gray-600 text-white">
+        <div class="table-container">
+            <table>
+                <thead>
                     <tr>
-                        <th class="p-2 text-left sticky left-0 z-10 bg-gray-700">
-                           <input type="checkbox" id="select-all-checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                        </th>
-                        <th class="activity-col p-2 text-left min-w-[250px] bg-gray-700">Activité</th>
-                        <th class="p-2 text-center min-w-[80px]">Premier<br>accueil</th>
-                        <th class="p-2 text-center min-w-[80px]">Diagnostic<br>CEJ</th>
-                        <th class="p-2 text-center min-w-[80px]">Définition<br>du projet</th>
-                        <th class="p-2 text-center min-w-[80px]">Orientation</th>
-                        <th class="p-2 text-center min-w-[80px]">Insertion pro /<br>emploi</th>
-                        <th class="p-2 text-center min-w-[80px]">Formation</th>
-                        <th class="p-2 text-center min-w-[80px]">Alternance</th>
-                        <th class="p-2 text-center min-w-[80px]">Mobilité<br>locale</th>
-                        <th class="p-2 text-center min-w-[80px]">Mobilité<br>internationale</th>
-                        <th class="p-2 text-center min-w-[80px]">Logement</th>
-                        <th class="p-2 text-center min-w-[80px]">Santé /<br>bien-être</th>
-                        <th class="p-2 text-center min-w-[80px]">Accès aux<br>droits</th>
-                        <th class="p-2 text-center min-w-[80px]">Compétences<br>psychosociales</th>
-                        <th class="p-2 text-center min-w-[80px]">Citoyenneté /<br>engagement</th>
-                        <th class="p-2 text-center min-w-[80px]">Suivi / évolution<br>du parcours</th>
+                        <th class="activity-col">Activité</th>
+                        <th>Premier<br>accueil</th>
+                        <th>Diagnostic<br>CEJ</th>
+                        <th>Définition<br>du projet</th>
+                        <th>Orientation</th>
+                        <th>Insertion pro /<br>emploi</th>
+                        <th>Formation</th>
+                        <th>Alternance</th>
+                        <th>Mobilité<br>locale</th>
+                        <th>Mobilité<br>internationale</th>
+                        <th>Logement</th>
+                        <th>Santé /<br>bien-être</th>
+                        <th>Accès aux<br>droits</th>
+                        <th>Compétences<br>psychosociales</th>
+                        <th>Citoyenneté /<br>engagement</th>
+                        <th>Suivi / évolution<br>du parcours</th>
                     </tr>
                 </thead>
-                <tbody id="activities-tbody" class="bg-white divide-y divide-gray-200">
-                    <!-- Rows will be inserted here by JS to make them easier to manipulate -->
+                <tbody>
+                    <!-- Module Connaissance de soi -->
+                    <tr>
+                        <td class="activity-cell">16 Personnalités</td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Faire le point</td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Image de soi vs Vu par les autres</td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Matching</td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon autonomous">🔄</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon autonomous">🔄</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Recevoir du Feedback</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Mes objectifs personnels</td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Liste des valeurs</td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Moi au sommet de mon art</td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Auto présentation</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Parcours Ressources et Compétences</td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Image de marque personnelle</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span><span class="icon autonomous">🔄</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Concevez votre zine</td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span><span class="icon autonomous">🔄</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Jeu de simulation (négociation, vente)</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <!-- Module Bien-être et résilience -->
+                    <tr>
+                        <td class="activity-cell">La Roue des émotions</td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Trois bonnes choses</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Réseau de soutien social</td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Evaluation des besoins</td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Stressomètre</td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Prioriser ses routines</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Arbre de la résilience</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <!-- Module Insertion et Budget -->
+                    <tr>
+                        <td class="activity-cell">Portfolio de démarcation</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Vraies vies, vrais défis</td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Du salaire à la poche</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Concept d'épargne</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span><span class="icon autonomous">🔄</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Etude de cas</td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <!-- Module Passage à l'action -->
+                    <tr>
+                        <td class="activity-cell">Arrêtez de souhaiter, commencez à réaliser</td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon collective">👥</span></div></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Objectif SMART</td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon autonomous">🔄</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                    </tr>
+                    <tr>
+                        <td class="activity-cell">Ikigai : Concevez vous</td>
+                        <td></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span><span class="icon collective">👥</span><span class="icon autonomous">🔄</span></div></td>
+                        <td><span class="check-mark">✅</span><div class="modality-icons"><span class="icon individual">👤</span></div></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
-        <div class="footer bg-gray-100 p-4 text-center text-xs text-gray-600">
+        <div class="footer">
             <p>Ce tableau est un outil d'aide à la décision pour les conseillers. Les correspondances sont des recommandations et peuvent être adaptées au profil de chaque jeune.</p>
         </div>
     </div>
-
-    <!-- Modal for Loading and Displaying AI Results -->
-    <div id="ai-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div id="modal-content" class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-4 border-b flex justify-between items-center">
-                <h3 id="modal-title" class="text-lg font-bold text-gray-900">Résultat de l'IA</h3>
-                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600">&times;</button>
-            </div>
-            <div id="modal-body" class="p-6 overflow-y-auto">
-                <!-- Content will be injected here -->
-            </div>
-        </div>
-    </div>
-
-<script type="module">
-// Data for the table, using HTML entities for icons to prevent encoding issues.
-const activitiesData = [
-    { name: '16 Personnalités', links: { 'Diagnostic CEJ': ['&#128100;', '&#128260;'], 'Définition du projet': ['&#128100;'], 'Compétences psychosociales': ['&#128100;'] } },
-    { name: 'Faire le point', links: { 'Premier accueil': ['&#128100;'], 'Diagnostic CEJ': ['&#128100;'], 'Définition du projet': ['&#128100;'], 'Suivi / évolution du parcours': ['&#128100;'] } },
-    { name: 'Image de soi vs Vu par les autres', links: { 'Définition du projet': ['&#128100;', '&#128101;'], 'Insertion pro / emploi': ['&#128101;'], 'Compétences psychosociales': ['&#128101;'] } },
-    { name: 'Matching', links: { 'Définition du projet': ['&#128100;'], 'Orientation': ['&#128100;', '&#128260;'], 'Insertion pro / emploi': ['&#128260;'], 'Alternance': ['&#128260;'] } },
-    { name: 'Recevoir du Feedback', links: { 'Insertion pro / emploi': ['&#128100;', '&#128101;'], 'Compétences psychosociales': ['&#128101;'], 'Suivi / évolution du parcours': ['&#128100;'] } },
-    { name: 'Mes objectifs personnels', links: { 'Diagnostic CEJ': ['&#128100;'], 'Définition du projet': ['&#128100;', '&#128260;'], 'Suivi / évolution du parcours': ['&#128100;'] } },
-    { name: 'Liste des valeurs', links: { 'Diagnostic CEJ': ['&#128100;'], 'Définition du projet': ['&#128100;', '&#128101;'] } },
-    { name: 'Moi au sommet de mon art', links: { 'Définition du projet': ['&#128100;', '&#128101;'], 'Insertion pro / emploi': ['&#128100;'], 'Compétences psychosociales': ['&#128100;'] } },
-    { name: 'Auto présentation', links: { 'Insertion pro / emploi': ['&#128100;', '&#128101;'], 'Alternance': ['&#128101;'], 'Compétences psychosociales': ['&#128101;'] } },
-    { name: 'Parcours Ressources et Compétences', links: { 'Diagnostic CEJ': ['&#128100;'], 'Définition du projet': ['&#128100;'], 'Insertion pro / emploi': ['&#128100;'], 'Suivi / évolution du parcours': ['&#128100;'] } },
-    { name: 'Image de marque personnelle', links: { 'Insertion pro / emploi': ['&#128100;', '&#128101;', '&#128260;'], 'Alternance': ['&#128100;', '&#128260;'] } },
-    { name: 'Concevez votre zine', links: { 'Définition du projet': ['&#128100;', '&#128101;', '&#128260;'], 'Compétences psychosociales': ['&#128101;'], 'Citoyenneté / engagement': ['&#128101;'] } },
-    { name: 'Jeu de simulation (négociation, vente)', links: { 'Insertion pro / emploi': ['&#128101;'], 'Alternance': ['&#128101;'], 'Compétences psychosociales': ['&#128101;'] } },
-    { name: 'La Roue des émotions', links: { 'Diagnostic CEJ': ['&#128100;'], 'Santé / bien-être': ['&#128100;', '&#128260;'], 'Compétences psychosociales': ['&#128100;'] } },
-    { name: 'Trois bonnes choses', links: { 'Santé / bien-être': ['&#128100;', '&#128260;'], 'Compétences psychosociales': ['&#128100;'] } },
-    { name: 'Réseau de soutien social', links: { 'Diagnostic CEJ': ['&#128100;'], 'Santé / bien-être': ['&#128100;'], 'Accès aux droits': ['&#128100;'], 'Compétences psychosociales': ['&#128100;'] } },
-    { name: 'Evaluation des besoins', links: { 'Premier accueil': ['&#128100;'], 'Diagnostic CEJ': ['&#128100;'], 'Logement': ['&#128100;'], 'Santé / bien-être': ['&#128100;'], 'Accès aux droits': ['&#128100;'] } },
-    { name: 'Stressomètre', links: { 'Diagnostic CEJ': ['&#128100;'], 'Santé / bien-être': ['&#128100;', '&#128260;'], 'Compétences psychosociales': ['&#128100;'] } },
-    { name: 'Prioriser ses routines', links: { 'Santé / bien-être': ['&#128100;', '&#128101;'], 'Suivi / évolution du parcours': ['&#128100;'] } },
-    { name: 'Arbre de la résilience', links: { 'Santé / bien-être': ['&#128100;', '&#128101;'], 'Compétences psychosociales': ['&#128100;'] } },
-    { name: 'Portfolio de démarcation', links: { 'Insertion pro / emploi': ['&#128100;', '&#128260;'], 'Formation': ['&#128100;'], 'Alternance': ['&#128100;'] } },
-    { name: 'Vraies vies, vrais défis', links: { 'Définition du projet': ['&#128101;'], 'Compétences psychosociales': ['&#128101;'] } },
-    { name: 'Du salaire à la poche', links: { 'Insertion pro / emploi': ['&#128101;'], 'Accès aux droits': ['&#128100;', '&#128101;'] } },
-    { name: 'Concept d\'épargne', links: { 'Accès aux droits': ['&#128100;', '&#128101;', '&#128260;'] } },
-    { name: 'Etude de cas', links: { 'Définition du projet': ['&#128101;'], 'Orientation': ['&#128101;'], 'Formation': ['&#128101;'] } },
-    { name: 'Arrêtez de souhaiter, commencez à réaliser', links: { 'Définition du projet': ['&#128100;', '&#128101;'], 'Compétences psychosociales': ['&#128101;'], 'Suivi / évolution du parcours': ['&#128100;'] } },
-    { name: 'Objectif SMART', links: { 'Définition du projet': ['&#128100;', '&#128260;'], 'Suivi / évolution du parcours': ['&#128100;'] } },
-    { name: 'Ikigai : Concevez vous', links: { 'Diagnostic CEJ': ['&#128100;'], 'Définition du projet': ['&#128100;', '&#128101;', '&#128260;'], 'Orientation': ['&#128100;'] } }
-];
-const headers = ['Premier accueil', 'Diagnostic CEJ', 'Définition du projet', 'Orientation', 'Insertion pro / emploi', 'Formation', 'Alternance', 'Mobilité locale', 'Mobilité internationale', 'Logement', 'Santé / bien-être', 'Accès aux droits', 'Compétences psychosociales', 'Citoyenneté / engagement', 'Suivi / évolution du parcours'];
-
-const tbody = document.getElementById('activities-tbody');
-const allActivityNames = activitiesData.map(act => act.name);
-
-// Populate table
-activitiesData.forEach(activity => {
-    const row = document.createElement('tr');
-    row.className = 'hover:bg-gray-100';
-    row.innerHTML = `
-        <td class="p-2 text-center sticky left-0 bg-white hover:bg-gray-100">
-            <input type="checkbox" data-activity-name="${activity.name}" class="activity-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-        </td>
-        <td class="activity-cell p-2 font-medium text-gray-800 bg-gray-50 border-r border-gray-200">${activity.name}</td>
-        ${headers.map(header => {
-            const link = activity.links[header.replace('<br>', ' ')];
-            if (link) {
-                // Now 'link' is an array of HTML entities. We map them into spans.
-                return `<td class="text-center p-2"><span class="text-green-600 font-bold text-lg">&#9989;</span><div class="flex justify-center gap-1 mt-1 text-gray-500">${link.map(icon => `<span>${icon}</span>`).join('')}</div></td>`;
-            }
-            return '<td class="p-2"></td>';
-        }).join('')}
-    `;
-    tbody.appendChild(row);
-});
-
-// DOM Elements
-const suggestBtn = document.getElementById('suggest-activities-btn');
-const generatePlanBtn = document.getElementById('generate-plan-btn');
-const clearSelectionBtn = document.getElementById('clear-selection-btn');
-const situationInput = document.getElementById('situation-input');
-const modal = document.getElementById('ai-modal');
-const modalTitle = document.getElementById('modal-title');
-const modalBody = document.getElementById('modal-body');
-const closeModalBtn = document.getElementById('close-modal-btn');
-const selectAllCheckbox = document.getElementById('select-all-checkbox');
-const activityCheckboxes = document.querySelectorAll('.activity-checkbox');
-
-// --- Gemini API Call Function ---
-async function callGemini(prompt, isJson = false) {
-    const apiKey = ""; // Leave empty, handled by the environment
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-    const payload = {
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {}
-    };
-
-    if (isJson) {
-        payload.generationConfig = {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: "OBJECT",
-                properties: {
-                    "suggested_activities": {
-                        "type": "ARRAY",
-                        "items": { "type": "STRING" }
-                    }
-                }
-            }
-        };
-    }
-
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            const errorBody = await response.text();
-            throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
-        }
-
-        const result = await response.json();
-        if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
-            return result.candidates[0].content.parts[0].text;
-        } else {
-            console.error("Unexpected API response structure:", result);
-            throw new Error("Réponse inattendue de l'API Gemini.");
-        }
-    } catch (error) {
-        console.error("Error calling Gemini API:", error);
-        throw error;
-    }
-}
-
-
-// --- Modal Logic ---
-function showModal(title, content, isHtml = false) {
-    modalTitle.innerHTML = title; // Use innerHTML to render entities
-    if (isHtml) {
-        modalBody.innerHTML = content;
-    } else {
-        modalBody.textContent = content;
-    }
-    modal.classList.remove('hidden');
-}
-
-function showLoadingModal(title) {
-    showModal(title, '<div class="flex justify-center items-center p-8"><div class="spinner"></div></div>', true);
-}
-
-closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
-modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-        modal.classList.add('hidden');
-    }
-});
-
-
-// --- Feature 1: Suggest Activities ---
-suggestBtn.addEventListener('click', async () => {
-    const situation = situationInput.value.trim();
-    if (!situation) {
-        showModal('Erreur', 'Veuillez décrire la situation du jeune.');
-        return;
-    }
-
-    showLoadingModal("L'IA analyse la situation...");
-
-    const prompt = `
-        Tu es un conseiller d'orientation expert pour les jeunes en difficulté.
-        Analyse la situation suivante et identifie les 3 à 5 activités les plus pertinentes dans la liste ci-dessous.
-        Ne suggère que des activités de cette liste.
-
-        Liste des activités disponibles:
-        ${JSON.stringify(allActivityNames)}
-
-        Situation du jeune:
-        "${situation}"
-    `;
-
-    try {
-        const jsonResponse = await callGemini(prompt, true);
-        const { suggested_activities } = JSON.parse(jsonResponse);
-
-        clearHighlightsAndChecks();
-
-        suggested_activities.forEach(activityName => {
-            const checkbox = document.querySelector(`input[data-activity-name="${activityName}"]`);
-            if (checkbox) {
-                checkbox.checked = true;
-                checkbox.closest('tr').classList.add('highlight');
-            }
-        });
-        modal.classList.add('hidden');
-        // Scroll to the first highlighted element
-        const firstHighlight = document.querySelector('.highlight');
-        if(firstHighlight) {
-            firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-    } catch (error) {
-        showModal('Erreur de l\'IA', `Une erreur est survenue lors de la suggestion d'activités: ${error.message}`);
-    }
-});
-
-// --- Feature 2: Generate Action Plan ---
-generatePlanBtn.addEventListener('click', async () => {
-    const selectedActivities = Array.from(document.querySelectorAll('.activity-checkbox:checked'))
-        .map(cb => cb.dataset.activityName);
-
-    if (selectedActivities.length === 0) {
-        showModal('Erreur', 'Veuillez sélectionner au moins une activité pour générer un plan.');
-        return;
-    }
-
-    showLoadingModal("L'IA génère le plan d'action...");
-
-    const prompt = `
-        Tu es un conseiller bienveillant et motivant.
-        Crée un plan d'action personnalisé et encourageant pour un jeune, basé sur les activités suivantes :
-        - ${selectedActivities.join('\n- ')}
-
-        Rédige le plan directement pour le jeune. Utilise un ton positif et simple.
-        Commence par une introduction motivante.
-        Ensuite, pour chaque activité, crée une section avec un titre clair et 2-3 prochaines étapes simples et concrètes.
-        Termine par une phrase d'encouragement.
-        Formate la réponse en Markdown.
-    `;
-    
-    try {
-        const planMarkdown = await callGemini(prompt, false);
-        // Basic Markdown to HTML conversion
-        let planHtml = planMarkdown
-            .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
-            .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-5 mb-3">$1</h2>')
-            .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-extrabold mt-6 mb-4">$1</h1>')
-            .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*)\*/g, '<em>$1</em>')
-            .replace(/^- (.*$)/gim, '<li class="ml-5 list-disc">$1</li>')
-            .replace(/\n/g, '<br>');
-
-        showModal("Plan d'action personnalisé &#10024;", planHtml, true);
-    } catch (error) {
-        showModal('Erreur de l\'IA', `Une erreur est survenue lors de la génération du plan: ${error.message}`);
-    }
-});
-
-
-// --- Utility Functions ---
-function clearHighlightsAndChecks() {
-    document.querySelectorAll('tr.highlight').forEach(row => row.classList.remove('highlight'));
-    activityCheckboxes.forEach(cb => cb.checked = false);
-    selectAllCheckbox.checked = false;
-}
-
-clearSelectionBtn.addEventListener('click', clearHighlightsAndChecks);
-
-selectAllCheckbox.addEventListener('change', (e) => {
-    activityCheckboxes.forEach(cb => cb.checked = e.target.checked);
-});
-
-activityCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', () => {
-        if (!checkbox.checked) {
-            selectAllCheckbox.checked = false;
-        } else {
-            if (Array.from(activityCheckboxes).every(cb => cb.checked)) {
-                selectAllCheckbox.checked = true;
-            }
-        }
-    });
-});
-
-</script>
-
 </body>
 </html>

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -6,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de Correspondance par Domaines de Compétences</title>
     <style>
+        /* --- General Styles --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             background-color: #f8f9fa;
         }
         
@@ -23,7 +23,7 @@
         }
         
         .header {
-            background: linear-gradient(135deg, #F87171 0%, #FBBF24 100%); /* Red to Yellow Gradient */
+            background: linear-gradient(135deg, #F87171 0%, #FBBF24 100%);
             color: white;
             padding: 25px;
             text-align: center;
@@ -85,7 +85,7 @@
         }
         
         th {
-            background: #4A5568; /* Darker Gray */
+            background: #4A5568;
             color: white;
             padding: 12px 8px;
             text-align: center;
@@ -99,7 +99,7 @@
         }
         
         th.activity-col {
-            background: #2D3748; /* Even Darker Gray */
+            background: #2D3748;
             text-align: left;
             min-width: 300px;
             left: 0;
@@ -124,7 +124,7 @@
         }
         
         a.activity-link {
-            color: #0D9488; /* Dark Turquoise */
+            color: #0D9488;
             text-decoration: none;
             font-weight: 600;
         }
@@ -150,21 +150,21 @@
             font-size: 13px;
         }
         
-        /* Domain Colors - LS4Y Palette */
-        .bg-personnalite { background-color: #99F6E4; } /* Light Turquoise */
-        .bg-autopromotion { background-color: #FEF08A; } /* Light Yellow */
-        .bg-bienetre { background-color: #A7F3D0; } /* Light Green/Turquoise */
-        .bg-finances { background-color: #FECACA; } /* Light Red */
-        .bg-action { background-color: #F87171; color: white; } /* Strong Red */
+        /* Domain Colors */
+        .bg-personnalite { background-color: #99F6E4; }
+        .bg-autopromotion { background-color: #FEF08A; }
+        .bg-bienetre { background-color: #A7F3D0; }
+        .bg-finances { background-color: #FECACA; }
+        .bg-action { background-color: #F87171; color: white; }
         .bg-action .domain-question { color: #FFD2D2; }
 
 
         tr:hover .activity-cell, tr:hover > td {
-            background-color: #F0FDFA; /* Very light turquoise for hover */
+            background-color: #F0FDFA;
         }
         
         .check-mark {
-            color: #16A34A; /* Green */
+            color: #16A34A;
             font-size: 16px;
             font-weight: bold;
         }
@@ -186,7 +186,7 @@
             font-size: 12px;
         }
 
-        /* Modal Styles */
+        /* --- Modal Styles --- */
         .modal {
             display: none;
             position: fixed;
@@ -203,7 +203,7 @@
             margin: 10% auto;
             padding: 0;
             border: 1px solid #888;
-            width: 80%;
+            width: 90%;
             max-width: 600px;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
@@ -216,7 +216,7 @@
         }
         .modal-header {
             padding: 16px;
-            background-color: #2DD4BF; /* Turquoise */
+            background-color: #2DD4BF;
             color: white;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
@@ -241,20 +241,94 @@
             padding: 20px;
             line-height: 1.6;
         }
-        .modal-body p {
-            margin-bottom: 12px;
-        }
-        .modal-body ul {
-            list-style-position: inside;
-            padding-left: 10px;
-            margin-top: 5px;
-        }
         .modal-section-title {
             font-weight: bold;
             color: #333;
             margin-top: 15px;
         }
-        
+
+        /* --- Responsive Styles for Mobile & Tablet --- */
+        @media screen and (max-width: 800px) {
+            body {
+                padding: 0;
+            }
+            .container {
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .legend {
+                padding: 15px;
+            }
+            .table-container {
+                overflow-x: hidden; /* Hide horizontal scroll on mobile */
+            }
+            table {
+                font-size: 14px;
+            }
+            table thead {
+                display: none; /* Hide the original table header */
+            }
+            table, table tbody, table tr, table td {
+                display: block;
+                width: 100%;
+            }
+            table tr {
+                margin-bottom: 20px;
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+            table td {
+                text-align: right;
+                position: relative;
+                padding: 12px 15px 12px 50%; /* Make space for the label */
+                border-bottom: 1px solid #e9ecef;
+            }
+            table td:last-child {
+                border-bottom: none;
+            }
+            /* Add data labels as pseudo-elements */
+            table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: calc(50% - 25px);
+                text-align: left;
+                font-weight: 600;
+                color: #4A5568;
+            }
+            /* Style the first cell of each row as a card header */
+            td.activity-cell {
+                position: static;
+                text-align: left;
+                border-right: none;
+                background-color: #2D3748;
+                color: white;
+                font-size: 16px;
+                border-bottom: 1px solid #4A5568;
+                padding: 15px;
+            }
+            td.activity-cell a.activity-link {
+                color: white;
+            }
+            .domain-header-row td {
+                text-align: center;
+                font-size: 16px;
+                padding: 15px;
+            }
+            .domain-question {
+                display: block;
+                font-size: 14px;
+                margin-top: 5px;
+            }
+            .modality-icons {
+                justify-content: flex-end; /* Align icons to the right */
+            }
+        }
     </style>
 </head>
 <body>
@@ -267,14 +341,14 @@
         <div class="legend">
             <h3>Légende</h3>
             <div class="legend-items">
-                <div class="legend-item"><span class="legend-color-box bg-personnalite"></span><span>&#10084;&#65039;&#8205;&#129658; Personnalité</span></div>
-                <div class="legend-item"><span class="legend-color-box bg-autopromotion"></span><span>&#128227; Auto-promotion</span></div>
-                <div class="legend-item"><span class="legend-color-box bg-bienetre"></span><span>&#129496; Bien-être</span></div>
-                <div class="legend-item"><span class="legend-color-box bg-finances"></span><span>&#128176; Finances & Ressources</span></div>
-                <div class="legend-item"><span class="legend-color-box bg-action" style="color:black;"></span><span>&#128640; Passage à l'action</span></div>
-                <div class="legend-item"><span class="icon">&#128100;</span><span>Individuel</span></div>
-                <div class="legend-item"><span class="icon">&#128101;</span><span>Collectif</span></div>
-                <div class="legend-item"><span class="icon">&#128260;</span><span>Autonomie</span></div>
+                <div class="legend-item"><span class="legend-color-box bg-personnalite"></span><span>❤️‍🩹 Personnalité</span></div>
+                <div class="legend-item"><span class="legend-color-box bg-autopromotion"></span><span>📢 Auto-promotion</span></div>
+                <div class="legend-item"><span class="legend-color-box bg-bienetre"></span><span>🧘 Bien-être</span></div>
+                <div class="legend-item"><span class="legend-color-box bg-finances"></span><span>💰 Finances & Ressources</span></div>
+                <div class="legend-item"><span class="legend-color-box bg-action" style="color:black;"></span><span>🚀 Passage à l'action</span></div>
+                <div class="legend-item"><span class="icon">👤</span><span>Individuel</span></div>
+                <div class="legend-item"><span class="icon">👥</span><span>Collectif</span></div>
+                <div class="legend-item"><span class="icon">💡</span><span>Autonomie</span></div>
             </div>
         </div>
         
@@ -306,7 +380,7 @@
             </table>
         </div>
         <div class="footer">
-            <p>Ce tableau est un outil d'aide à la décision pour les conseillers. Les correspondances sont des recommandations et peuvent être adaptées au profil de chaque jeune.</p>
+            <p>Ce tableau est un outil d'aide à la décision. Les correspondances sont des recommandations à adapter au profil de chaque jeune.</p>
         </div>
     </div>
 
@@ -327,33 +401,18 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- Data Definition ---
     const icons = {
-        perso: '&#128100;', collectif: '&#128101;', autonomie: '&#128260;', check: '&#9989;',
+        perso: '👤', collectif: '👥', autonomie: '💡', check: '✅',
         domaines: {
-            personnalite: '&#10084;&#65039;&#8205;&#129658;', autopromotion: '&#128227;', bienetre: '&#129496;', finances: '&#128176;', action: '&#128640;'
+            personnalite: '❤️‍�', autopromotion: '📢', bienetre: '🧘', finances: '💰', action: '🚀'
         }
     };
 
     const stages = {
-        "ETAPE_1": {
-            title: "ÉTAPE 1 : Diagnostic / Accueil",
-            tools: "📊 Grille LS initiale, 💬 Diagnostic motivationnel, 🧠 Évaluation santé mentale."
-        },
-        "ETAPE_2": {
-            title: "ÉTAPE 2 : Remobilisation",
-            tools: "💡 Ateliers Life Skills, 🤝 Activité collective, 💻 Plateforme."
-        },
-        "ETAPE_3": {
-            title: "ÉTAPE 3 : Exploration / Orientation",
-            tools: "🗺️ Outils du guidebook, 💼 Ateliers métiers, 🎬 Capsules vidéo."
-        },
-        "ETAPE_4": {
-            title: "ÉTAPE 4 : Mise en action / Formation",
-            tools: "📚 Module guidebook, ✅ Grille de suivi, 📈 Évaluation avec référent."
-        },
-        "ETAPE_5": {
-            title: "ÉTAPE 5 : Autonomisation / Suivi",
-            tools: "💻 Plateforme LS4YOU, 📊 Grille LS intermédiaire et finale, 🏆 Portfolio."
-        }
+        "ETAPE_1": { title: "ÉTAPE 1 : Diagnostic / Accueil", tools: "📊 Grille LS initiale, 💬 Diagnostic motivationnel, 🧠 Évaluation santé mentale." },
+        "ETAPE_2": { title: "ÉTAPE 2 : Remobilisation", tools: "💡 Ateliers Life Skills, 🤝 Activité collective, 💻 Plateforme." },
+        "ETAPE_3": { title: "ÉTAPE 3 : Exploration / Orientation", tools: "🗺️ Outils du guidebook, 💼 Ateliers métiers, 🎬 Capsules vidéo." },
+        "ETAPE_4": { title: "ÉTAPE 4 : Mise en action / Formation", tools: "📚 Module guidebook, ✅ Grille de suivi, 📈 Évaluation avec référent." },
+        "ETAPE_5": { title: "ÉTAPE 5 : Autonomisation / Suivi", tools: "💻 Plateforme LS4YOU, 📊 Grille LS intermédiaire et finale, 🏆 Portfolio." }
     };
 
     const domains = [
@@ -411,7 +470,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Table & Modal Generation ---
     const tableBody = document.querySelector("#activities-table tbody");
-    const headers = Array.from(document.querySelectorAll("#activities-table thead th")).slice(1).map(th => th.innerHTML.replace('<br>', ' '));
+    const headers = Array.from(document.querySelectorAll("#activities-table thead th")).slice(1).map(th => th.innerText.replace(/\s+/g, ' '));
     const activitiesMap = new Map();
 
     domains.forEach(domain => {
@@ -424,16 +483,16 @@ document.addEventListener('DOMContentLoaded', function() {
         domain.activities.forEach(activity => {
             activitiesMap.set(activity.code, { ...activity, domainName: domain.name });
             const row = tableBody.insertRow();
-            let rowHTML = `<td class="activity-cell"><a href="#" class="activity-link" data-code="${activity.code}"><strong>${activity.code}</strong> - ${activity.name}</a></td>`;
+            let rowHTML = `<td class="activity-cell" data-label="Activité"><a href="#" class="activity-link" data-code="${activity.code}"><strong>${activity.code}</strong> - ${activity.name}</a></td>`;
             
             headers.forEach(header => {
                 const link = activity.links[header];
+                let cellContent = '';
                 if (link && Array.isArray(link)) {
                     const iconSpans = link.map(icon => `<span class="icon">${icon}</span>`).join('');
-                    rowHTML += `<td><span class="check-mark">${icons.check}</span><div class="modality-icons">${iconSpans}</div></td>`;
-                } else {
-                    rowHTML += '<td></td>';
+                    cellContent = `<span class="check-mark">${icons.check}</span><div class="modality-icons">${iconSpans}</div>`;
                 }
+                rowHTML += `<td data-label="${header}">${cellContent}</td>`;
             });
             row.innerHTML = rowHTML;
         });
@@ -487,4 +546,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-
